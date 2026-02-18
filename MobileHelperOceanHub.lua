@@ -39,15 +39,12 @@ end
 
 local cam = workspace.CurrentCamera
 local screen = cam.ViewportSize
-
--- device detect (rough but works)
 local isPhone = UIS.TouchEnabled and math.min(screen.X, screen.Y) < 900
 
 local SIZE = isPhone and 56 or 64
 local GAP = isPhone and 10 or 8
 local WIDE_W = (SIZE * 2) + GAP
 
--- hotbar indicator
 local hotbar = Instance.new("TextLabel", gui)
 hotbar.Size = UDim2.fromOffset(300,36)
 hotbar.AnchorPoint = Vector2.new(0.5,1)
@@ -87,14 +84,10 @@ local function makeBtn(txt, w, h)
 	l.TextColor3 = Color3.fromRGB(240,240,240)
 
 	b.MouseButton1Down:Connect(function()
-		TweenService:Create(b, TweenInfo.new(0.08), {
-			Size = UDim2.fromOffset(w - 5, h - 5)
-		}):Play()
+		TweenService:Create(b, TweenInfo.new(0.08), {Size = UDim2.fromOffset(w - 5, h - 5)}):Play()
 	end)
 	b.MouseButton1Up:Connect(function()
-		TweenService:Create(b, TweenInfo.new(0.08), {
-			Size = UDim2.fromOffset(w, h)
-		}):Play()
+		TweenService:Create(b, TweenInfo.new(0.08), {Size = UDim2.fromOffset(w, h)}):Play()
 	end)
 
 	return b
@@ -105,10 +98,9 @@ local C = makeBtn("Right\nBase", SIZE, SIZE)
 local X = makeBtn("Bat Aimbot", WIDE_W, SIZE)
 local N = makeBtn("Rotater", WIDE_W, SIZE)
 
--- layout
 if isPhone then
-	-- middle-left cluster for phones
-	local cx = 40
+	-- middle-right for phones
+	local cx = screen.X - WIDE_W - 20
 	local cy = screen.Y * 0.55
 
 	X.Position = UDim2.fromOffset(cx, cy - SIZE - GAP)
@@ -116,7 +108,7 @@ if isPhone then
 	C.Position = UDim2.fromOffset(cx + SIZE + GAP, cy)
 	N.Position = UDim2.fromOffset(cx, cy + SIZE + GAP)
 else
-	-- bottom-right cluster for iPad/tablet
+	-- bottom-right for tablets
 	local jumpX = screen.X - 300
 	local jumpY = screen.Y - 300
 
