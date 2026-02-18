@@ -100,18 +100,18 @@ local X = makeBtn("Bat Aimbot", WIDE_W, SIZE)
 local N = makeBtn("Rotater", WIDE_W, SIZE)
 
 if isPhone then
-	-- pushed to far right for phones
+	-- pushed to far right for phones (moved UP)
 	local cx = screen.X - WIDE_W - 6
-	local cy = screen.Y * 0.55
+	local cy = (screen.Y * 0.55) - 40  -- moved up
 
 	X.Position = UDim2.fromOffset(cx, cy - SIZE - GAP)
 	Z.Position = UDim2.fromOffset(cx, cy)
 	C.Position = UDim2.fromOffset(cx + SIZE + GAP, cy)
 	N.Position = UDim2.fromOffset(cx, cy + SIZE + GAP)
 else
-	-- bottom-right for tablets
+	-- bottom-right for tablets (moved UP)
 	local jumpX = screen.X - 300
-	local jumpY = screen.Y - 300
+	local jumpY = screen.Y - 340  -- moved up
 
 	X.Position = UDim2.fromOffset(jumpX - WIDE_W/2, jumpY - SIZE - GAP)
 	Z.Position = UDim2.fromOffset(jumpX - SIZE - GAP/2, jumpY)
