@@ -45,13 +45,11 @@ local SIZE = isPhone and 56 or 64
 local GAP = isPhone and 10 or 8
 local WIDE_W = (SIZE * 2) + GAP
 
--- Hotbar indicator
 local hotbar = Instance.new("TextLabel", gui)
 hotbar.Size = UDim2.fromOffset(300,36)
 hotbar.AnchorPoint = Vector2.new(0.5,1)
-hotbar.Position = isPhone
-	and (UDim2.fromScale(0.5,1) - UDim2.fromOffset(0,120))
-	or  (UDim2.fromScale(0.5,1) - UDim2.fromOffset(0,90))
+hotbar.Position = isPhone and (UDim2.fromScale(0.5,1) - UDim2.fromOffset(0,120))
+	or (UDim2.fromScale(0.5,1) - UDim2.fromOffset(0,90))
 hotbar.BackgroundTransparency = 1
 hotbar.Text = "Idle"
 hotbar.Font = Enum.Font.GothamBold
@@ -99,20 +97,17 @@ local C = makeBtn("Right\nBase", SIZE, SIZE)
 local X = makeBtn("Bat Aimbot", WIDE_W, SIZE)
 local N = makeBtn("Rotater", WIDE_W, SIZE)
 
+-- positions
 if isPhone then
-	-- pushed to far right for phones (moved UP)
 	local cx = screen.X - WIDE_W - 6
-	local cy = (screen.Y * 0.55) - 40  -- moved up
-
+	local cy = (screen.Y * 0.55) - 70
 	X.Position = UDim2.fromOffset(cx, cy - SIZE - GAP)
 	Z.Position = UDim2.fromOffset(cx, cy)
 	C.Position = UDim2.fromOffset(cx + SIZE + GAP, cy)
 	N.Position = UDim2.fromOffset(cx, cy + SIZE + GAP)
 else
-	-- bottom-right for tablets (moved UP)
 	local jumpX = screen.X - 300
-	local jumpY = screen.Y - 340  -- moved up
-
+	local jumpY = screen.Y - 300
 	X.Position = UDim2.fromOffset(jumpX - WIDE_W/2, jumpY - SIZE - GAP)
 	Z.Position = UDim2.fromOffset(jumpX - SIZE - GAP/2, jumpY)
 	C.Position = UDim2.fromOffset(jumpX + GAP/2, jumpY)
@@ -122,20 +117,27 @@ end
 local function press(k) pcall(function() keypress(k) end) end
 local function release(k) pcall(function() keyrelease(k) end) end
 
+-- Bases
 Z.MouseButton1Down:Connect(function() hotbar.Text = "Left Base (Z)"; press(Enum.KeyCode.Z) end)
 Z.MouseButton1Up:Connect(function() release(Enum.KeyCode.Z) end)
-
-local aimbotOn = false
-X.MouseButton1Down:Connect(function()
-	aimbotOn = not aimbotOn
-	hotbar.Text = aimbotOn and "Bat Aimbot: ON (X)" or "Bat Aimbot: OFF (X)"
-	X.BackgroundTransparency = aimbotOn and 0.05 or 0.15
-	press(Enum.KeyCode.X)
-end)
-X.MouseButton1Up:Connect(function() release(Enum.KeyCode.X) end)
 
 C.MouseButton1Down:Connect(function() hotbar.Text = "Right Base (C)"; press(Enum.KeyCode.C) end)
 C.MouseButton1Up:Connect(function() release(Enum.KeyCode.C) end)
 
-N.MouseButton1Down:Connect(function() hotbar.Text = "Rotater (N)"; press(Enum.KeyCode.N) end)
-N.MouseButton1Up:Connect(function() release(Enum.KeyCode.N) end)
+-- Bat Aimbot (exclusive toggle)
+local aimbotOn = false
+X.MouseButton1Click:Connect(function()
+	aimbotOn = not aimbotOn
+	hotbar.Text = aimbotOn and "Bat Aimbot: ON (X)" or "Bat Aimbot: OFF (X)"
+	X.BackgroundTransparency = aimbotOn and 0.05 or 0.15
+	press(Enum.KeyCode.X); release(Enum.KeyCode.X)
+end)
+
+-- Rotater (independent toggle)
+local rotaterOn = false
+N.MouseButton1Click:Connect(function()
+	rotaterOn = not rotaterOn
+	hotbar.Text = rotaterOn and "Rotater: ON (N)" or "Rotater: OFF (N)"
+	N.BackgroundTransparency = rotaterOn and 0.05 or 0.15
+	press(Enum.KeyCode.N); release(Enum.KeyCode.N)
+end)
