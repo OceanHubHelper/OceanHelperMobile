@@ -40,7 +40,7 @@ do
 	intro:Destroy()
 end
 
--- Safe Anti-Lag (won't touch UI)
+-- Safe Anti-Lag
 local function enableAntiLag()
 	pcall(function()
 		Lighting.GlobalShadows = false
@@ -71,6 +71,36 @@ local function enableAntiLag()
 end
 
 enableAntiLag()
+
+-- FPS Counter (top right)
+local fpsLabel = Instance.new("TextLabel", gui)
+fpsLabel.Size = UDim2.fromOffset(110, 28)
+fpsLabel.Position = UDim2.fromScale(1, 0) - UDim2.fromOffset(120, -8)
+fpsLabel.AnchorPoint = Vector2.new(0, 0)
+fpsLabel.BackgroundTransparency = 0.35
+fpsLabel.BackgroundColor3 = Color3.fromRGB(20, 22, 30)
+fpsLabel.BorderSizePixel = 0
+fpsLabel.Text = "FPS: --"
+fpsLabel.Font = Enum.Font.GothamBold
+fpsLabel.TextSize = 14
+fpsLabel.TextColor3 = Color3.fromRGB(120, 255, 140)
+fpsLabel.TextStrokeTransparency = 0.7
+
+Instance.new("UICorner", fpsLabel).CornerRadius = UDim.new(0, 8)
+
+local frames, last = 0, tick()
+RunService.RenderStepped:Connect(function()
+	frames += 1
+	local now = tick()
+	if now - last >= 1 then
+		local fps = math.floor(frames / (now - last))
+		frames, last = 0, now
+		fpsLabel.Text = "FPS: " .. fps
+		fpsLabel.TextColor3 = (fps < 10)
+			and Color3.fromRGB(255, 90, 90)
+			or  Color3.fromRGB(120, 255, 140)
+	end
+end)
 
 -- Layout helpers
 local cam = workspace.CurrentCamera
