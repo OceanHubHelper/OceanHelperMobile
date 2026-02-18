@@ -1,8 +1,11 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
+-- GUI
 local gui = Instance.new("ScreenGui")
 gui.Name = "VxMenu"
 gui.ResetOnSpawn = false
@@ -20,9 +23,9 @@ do
 	local title = Instance.new("TextLabel", intro)
 	title.Size = UDim2.fromScale(1,1)
 	title.BackgroundTransparency = 1
-	title.Text = "VxMenu"
+	title.Text = "VxMenu\nAnti-Lag: ON"
 	title.Font = Enum.Font.GothamBlack
-	title.TextSize = 56
+	title.TextSize = 48
 	title.TextColor3 = Color3.new(1,1,1)
 	title.TextTransparency = 1
 	title.TextStrokeTransparency = 1
@@ -30,13 +33,46 @@ do
 
 	TweenService:Create(intro, TweenInfo.new(0.35), {BackgroundTransparency = 0.4}):Play()
 	TweenService:Create(title, TweenInfo.new(0.35), {TextTransparency = 0, TextStrokeTransparency = 0.6}):Play()
-	task.wait(0.9)
+	task.wait(1)
 	TweenService:Create(intro, TweenInfo.new(0.45), {BackgroundTransparency = 1}):Play()
 	TweenService:Create(title, TweenInfo.new(0.45), {TextTransparency = 1, TextStrokeTransparency = 1}):Play()
 	task.wait(0.45)
 	intro:Destroy()
 end
 
+-- Safe Anti-Lag (won't touch UI)
+local function enableAntiLag()
+	pcall(function()
+		Lighting.GlobalShadows = false
+		Lighting.FogEnd = 1e6
+	end)
+
+	for _,v in ipairs(Lighting:GetChildren()) do
+		if v:IsA("PostEffect") then
+			v.Enabled = false
+		end
+	end
+
+	for _,d in ipairs(workspace:GetDescendants()) do
+		if d:IsA("ParticleEmitter") or d:IsA("Beam") or d:IsA("Trail") then
+			d.Enabled = false
+		end
+	end
+
+	if not _G._antiLagConn then
+		_G._antiLagConn = RunService.Heartbeat:Connect(function()
+			for _,d in ipairs(workspace:GetDescendants()) do
+				if d:IsA("ParticleEmitter") or d:IsA("Beam") or d:IsA("Trail") then
+					d.Enabled = false
+				end
+			end
+		end)
+	end
+end
+
+enableAntiLag()
+
+-- Layout helpers
 local cam = workspace.CurrentCamera
 local screen = cam.ViewportSize
 local isPhone = UIS.TouchEnabled and math.min(screen.X, screen.Y) < 900
@@ -45,8 +81,9 @@ local SIZE = isPhone and 56 or 64
 local GAP = isPhone and 10 or 8
 local WIDE_W = (SIZE * 2) + GAP
 
+-- Hotbar indicator
 local hotbar = Instance.new("TextLabel", gui)
-hotbar.Size = UDim2.fromOffset(300,36)
+hotbar.Size = UDim2.fromOffset(320,36)
 hotbar.AnchorPoint = Vector2.new(0.5,1)
 hotbar.Position = isPhone and (UDim2.fromScale(0.5,1) - UDim2.fromOffset(0,120))
 	or (UDim2.fromScale(0.5,1) - UDim2.fromOffset(0,90))
@@ -57,6 +94,7 @@ hotbar.TextSize = isPhone and 16 or 18
 hotbar.TextColor3 = Color3.new(1,1,1)
 hotbar.TextStrokeTransparency = 0.6
 
+-- Button factory
 local function makeBtn(txt, w, h)
 	local b = Instance.new("TextButton")
 	b.Size = UDim2.fromOffset(w, h)
@@ -92,12 +130,13 @@ local function makeBtn(txt, w, h)
 	return b
 end
 
+-- Buttons
 local Z = makeBtn("Left\nBase", SIZE, SIZE)
 local C = makeBtn("Right\nBase", SIZE, SIZE)
 local X = makeBtn("Bat Aimbot", WIDE_W, SIZE)
 local N = makeBtn("Rotater", WIDE_W, SIZE)
 
--- positions
+-- Positions
 if isPhone then
 	local cx = screen.X - WIDE_W - 6
 	local cy = (screen.Y * 0.55) - 70
@@ -114,17 +153,17 @@ else
 	N.Position = UDim2.fromOffset(jumpX - WIDE_W/2, jumpY + SIZE + GAP)
 end
 
+-- Key emulation
 local function press(k) pcall(function() keypress(k) end) end
 local function release(k) pcall(function() keyrelease(k) end) end
 
--- Bases
+-- Actions
 Z.MouseButton1Down:Connect(function() hotbar.Text = "Left Base (Z)"; press(Enum.KeyCode.Z) end)
 Z.MouseButton1Up:Connect(function() release(Enum.KeyCode.Z) end)
 
 C.MouseButton1Down:Connect(function() hotbar.Text = "Right Base (C)"; press(Enum.KeyCode.C) end)
 C.MouseButton1Up:Connect(function() release(Enum.KeyCode.C) end)
 
--- Bat Aimbot (exclusive toggle)
 local aimbotOn = false
 X.MouseButton1Click:Connect(function()
 	aimbotOn = not aimbotOn
@@ -133,7 +172,6 @@ X.MouseButton1Click:Connect(function()
 	press(Enum.KeyCode.X); release(Enum.KeyCode.X)
 end)
 
--- Rotater (independent toggle)
 local rotaterOn = false
 N.MouseButton1Click:Connect(function()
 	rotaterOn = not rotaterOn
