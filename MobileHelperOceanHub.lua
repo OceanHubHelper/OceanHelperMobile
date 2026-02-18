@@ -9,7 +9,7 @@ gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- Intro
+-- Intro splash
 do
 	local intro = Instance.new("Frame", gui)
 	intro.Size = UDim2.fromScale(1,1)
@@ -45,6 +45,7 @@ local SIZE = isPhone and 56 or 64
 local GAP = isPhone and 10 or 8
 local WIDE_W = (SIZE * 2) + GAP
 
+-- Hotbar indicator
 local hotbar = Instance.new("TextLabel", gui)
 hotbar.Size = UDim2.fromOffset(300,36)
 hotbar.AnchorPoint = Vector2.new(0.5,1)
@@ -99,8 +100,8 @@ local X = makeBtn("Bat Aimbot", WIDE_W, SIZE)
 local N = makeBtn("Rotater", WIDE_W, SIZE)
 
 if isPhone then
-	-- middle-right for phones
-	local cx = screen.X - WIDE_W - 20
+	-- pushed to far right for phones
+	local cx = screen.X - WIDE_W - 6
 	local cy = screen.Y * 0.55
 
 	X.Position = UDim2.fromOffset(cx, cy - SIZE - GAP)
