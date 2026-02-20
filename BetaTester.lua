@@ -4,7 +4,6 @@ local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
--- GUI root
 local gui = Instance.new("ScreenGui")
 gui.Name = "OceanHubMobileHelper"
 gui.ResetOnSpawn = false
@@ -14,21 +13,14 @@ gui.Parent = player:WaitForChild("PlayerGui")
 -- ===== Key emulation helpers =====
 local function pressKey(key)
 	pcall(function()
-		if keypress then
-			keypress(key)
-		elseif keypress2 then
-			keypress2(key)
-		end
+		if keypress then keypress(key)
+		elseif keypress2 then keypress2(key) end
 	end)
 end
-
 local function releaseKey(key)
 	pcall(function()
-		if keyrelease then
-			keyrelease(key)
-		elseif keyrelease2 then
-			keyrelease2(key)
-		end
+		if keyrelease then keyrelease(key)
+		elseif keyrelease2 then keyrelease2(key) end
 	end)
 end
 
@@ -132,19 +124,10 @@ setPositions()
 -- ===== Key bindings =====
 Z.MouseButton1Down:Connect(function() pressKey(Enum.KeyCode.Z) end)
 Z.MouseButton1Up:Connect(function() releaseKey(Enum.KeyCode.Z) end)
-
 C.MouseButton1Down:Connect(function() pressKey(Enum.KeyCode.C) end)
 C.MouseButton1Up:Connect(function() releaseKey(Enum.KeyCode.C) end)
-
-X.MouseButton1Click:Connect(function()
-	pressKey(Enum.KeyCode.X)
-	releaseKey(Enum.KeyCode.X)
-end)
-
-N.MouseButton1Click:Connect(function()
-	pressKey(Enum.KeyCode.N)
-	releaseKey(Enum.KeyCode.N)
-end)
+X.MouseButton1Click:Connect(function() pressKey(Enum.KeyCode.X); releaseKey(Enum.KeyCode.X) end)
+N.MouseButton1Click:Connect(function() pressKey(Enum.KeyCode.N); releaseKey(Enum.KeyCode.N) end)
 
 -- ===== Menu (+ / -) =====
 local menu = Instance.new("Frame", gui)
@@ -154,7 +137,7 @@ menu.BackgroundTransparency = 0.35
 menu.Visible = false
 
 local panel = Instance.new("Frame", menu)
-panel.Size = UDim2.fromOffset(340, 320)
+panel.Size = UDim2.fromOffset(340, 340)
 panel.Position = UDim2.fromScale(0.5,0.5)
 panel.AnchorPoint = Vector2.new(0.5,0.5)
 panel.BackgroundColor3 = Color3.fromRGB(20,22,30)
@@ -193,8 +176,16 @@ reopen.TextColor3 = Color3.fromRGB(200,200,200)
 Instance.new("UICorner", reopen).CornerRadius = UDim.new(0, 10)
 reopen.MouseButton1Click:Connect(function() menu.Visible = true end)
 
--- Toggles
-local function makeToggle(name, y, onToggle)
+-- ===== State + Toggles =====
+local state = {
+	Z = false,
+	C = false,
+	X = false,
+	N = false,
+	FPS = false,
+}
+
+local function makeToggle(name, y, key)
 	local row = Instance.new("Frame", panel)
 	row.Size = UDim2.fromOffset(300, 36)
 	row.Position = UDim2.fromOffset(20, y)
@@ -220,18 +211,38 @@ local function makeToggle(name, y, onToggle)
 	btn.TextColor3 = Color3.fromRGB(255,120,120)
 	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 12)
 
-	local on = false
 	btn.MouseButton1Click:Connect(function()
-		on = not on
-		btn.Text = on and "ON" or "OFF"
-		btn.TextColor3 = on and Color3.fromRGB(120,255,140) or Color3.fromRGB(255,120,120)
-		btn.BackgroundColor3 = on and Color3.fromRGB(35,60,45) or Color3.fromRGB(40,40,55)
-		onToggle(on)
+		state[key] = not state[key]
+		btn.Text = state[key] and "ON" or "OFF"
+		btn.TextColor3 = state[key] and Color3.fromRGB(120,255,140) or Color3.fromRGB(255,120,120)
+		btn.BackgroundColor3 = state[key] and Color3.fromRGB(35,60,45) or Color3.fromRGB(40,40,55)
+
+		if key == "Z" then ZCard.Visible = state[key] end
+		if key == "C" then CCard.Visible = state[key] end
+		if key == "X" then XCard.Visible = state[key] end
+		if key == "N" then NCard.Visible = state[key] end
+		if key == "FPS" then fpsLabel.Visible = state[key] end
 	end)
 end
 
-makeToggle("Left Base Button", 64, function(on) ZCard.Visible = on end)
-makeToggle("Right Base Button", 104, function(on) CCard.Visible = on end)
-makeToggle("Bat Aimbot Button", 144, function(on) XCard.Visible = on end)
-makeToggle("Rotater Button", 184, function(on) NCard.Visible = on end)
-makeToggle("FPS Counter", 224, function(on) fpsLabel.Visible = on end)
+makeToggle("Left Base Button", 64, "Z")
+makeToggle("Right Base Button", 104, "C")
+makeToggle("Bat Aimbot Button", 144, "X")
+makeToggle("Rotater Button", 184, "N")
+makeToggle("FPS Counter", 224, "FPS")
+
+-- ===== Save Button =====
+local saveBtn = Instance.new("TextButton", panel)
+saveBtn.Size = UDim2.fromOffset(96, 28)
+saveBtn.Position = UDim2.fromScale(1,1) - UDim2.fromOffset(16, 16)
+saveBtn.AnchorPoint = Vector2.new(1,1)
+saveBtn.Text = "Save"
+saveBtn.Font = Enum.Font.GothamBold
+saveBtn.TextSize = 12
+saveBtn.BackgroundColor3 = Color3.fromRGB(60, 120, 90)
+saveBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", saveBtn).CornerRadius = UDim.new(0, 12)
+
+saveBtn.MouseButton1Click:Connect(function()
+	print("Saved config:", state)
+end)
