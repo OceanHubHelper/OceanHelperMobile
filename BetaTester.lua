@@ -4,26 +4,35 @@ local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
+-- GUI root
 local gui = Instance.new("ScreenGui")
 gui.Name = "OceanHubMobileHelper"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.Parent = player:WaitForChild("PlayerGui")
 
--- ===== Always-on small number (top-left) =====
-local cornerNum = Instance.new("TextLabel", gui)
-cornerNum.Size = UDim2.fromOffset(28, 22)
-cornerNum.Position = UDim2.fromOffset(8, 8)
-cornerNum.BackgroundTransparency = 0.4
-cornerNum.BackgroundColor3 = Color3.fromRGB(20, 22, 30)
-cornerNum.BorderSizePixel = 0
-cornerNum.Text = "1"
-cornerNum.Font = Enum.Font.GothamBold
-cornerNum.TextSize = 12
-cornerNum.TextColor3 = Color3.fromRGB(200, 200, 200)
-Instance.new("UICorner", cornerNum).CornerRadius = UDim.new(0, 6)
+-- ===== Key emulation helpers =====
+local function pressKey(key)
+	pcall(function()
+		if keypress then
+			keypress(key)
+		elseif keypress2 then
+			keypress2(key)
+		end
+	end)
+end
 
--- ===== FPS Counter (hidden until enabled) =====
+local function releaseKey(key)
+	pcall(function()
+		if keyrelease then
+			keyrelease(key)
+		elseif keyrelease2 then
+			keyrelease2(key)
+		end
+	end)
+end
+
+-- ===== FPS Counter (toggleable) =====
 local fpsLabel = Instance.new("TextLabel", gui)
 fpsLabel.Size = UDim2.fromOffset(110, 28)
 fpsLabel.Position = UDim2.fromScale(1, 0) - UDim2.fromOffset(120, -8)
@@ -59,7 +68,7 @@ local SIZE = isPhone and 56 or 64
 local GAP = isPhone and 10 or 8
 local WIDE_W = (SIZE * 2) + GAP
 
--- ===== Card buttons =====
+-- ===== Button factory =====
 local function makeCardButton(txt, w, h)
 	local card = Instance.new("Frame")
 	card.Size = UDim2.fromOffset(w + 10, h + 10)
@@ -94,12 +103,13 @@ local function makeCardButton(txt, w, h)
 	return card, btn
 end
 
+-- ===== Buttons =====
 local ZCard, Z = makeCardButton("Left\nBase", SIZE, SIZE)
 local CCard, C = makeCardButton("Right\nBase", SIZE, SIZE)
 local XCard, X = makeCardButton("Bat Aimbot", WIDE_W, SIZE)
 local NCard, N = makeCardButton("Rotater", WIDE_W, SIZE)
 
--- Positions
+-- ===== Positions =====
 local function setPositions()
 	if isPhone then
 		local cx = screen.X - WIDE_W - 6
@@ -119,7 +129,24 @@ local function setPositions()
 end
 setPositions()
 
--- ===== Menu =====
+-- ===== Key bindings =====
+Z.MouseButton1Down:Connect(function() pressKey(Enum.KeyCode.Z) end)
+Z.MouseButton1Up:Connect(function() releaseKey(Enum.KeyCode.Z) end)
+
+C.MouseButton1Down:Connect(function() pressKey(Enum.KeyCode.C) end)
+C.MouseButton1Up:Connect(function() releaseKey(Enum.KeyCode.C) end)
+
+X.MouseButton1Click:Connect(function()
+	pressKey(Enum.KeyCode.X)
+	releaseKey(Enum.KeyCode.X)
+end)
+
+N.MouseButton1Click:Connect(function()
+	pressKey(Enum.KeyCode.N)
+	releaseKey(Enum.KeyCode.N)
+end)
+
+-- ===== Menu (+ / -) =====
 local menu = Instance.new("Frame", gui)
 menu.Size = UDim2.fromScale(1,1)
 menu.BackgroundColor3 = Color3.fromRGB(0,0,0)
@@ -208,15 +235,3 @@ makeToggle("Right Base Button", 104, function(on) CCard.Visible = on end)
 makeToggle("Bat Aimbot Button", 144, function(on) XCard.Visible = on end)
 makeToggle("Rotater Button", 184, function(on) NCard.Visible = on end)
 makeToggle("FPS Counter", 224, function(on) fpsLabel.Visible = on end)
-
--- Save button (UI placeholder)
-local saveBtn = Instance.new("TextButton", panel)
-saveBtn.Size = UDim2.fromOffset(96, 28)
-saveBtn.Position = UDim2.fromScale(1,1) - UDim2.fromOffset(16, 16)
-saveBtn.AnchorPoint = Vector2.new(1,1)
-saveBtn.Text = "Save"
-saveBtn.Font = Enum.Font.GothamBold
-saveBtn.TextSize = 12
-saveBtn.BackgroundColor3 = Color3.fromRGB(60, 120, 90)
-saveBtn.TextColor3 = Color3.new(1,1,1)
-Instance.new("UICorner", saveBtn).CornerRadius = UDim.new(0, 12)
