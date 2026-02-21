@@ -71,7 +71,7 @@ for _,d in ipairs(workspace:GetDescendants()) do
 end
 
 --------------------------------------------------
--- Key emulation helpers
+-- Key emulation helpers (executor required)
 --------------------------------------------------
 local function pressKey(key)
 	pcall(function() if keypress then keypress(key) end end)
@@ -81,7 +81,7 @@ local function releaseKey(key)
 end
 
 --------------------------------------------------
--- Create Buttons (ALWAYS parented + high ZIndex)
+-- Buttons (phone / iPad layout)
 --------------------------------------------------
 local cam = workspace.CurrentCamera
 local screen = cam.ViewportSize
@@ -96,7 +96,6 @@ local function makeBtn(txt, w, h)
 	frame.BackgroundColor3 = Color3.fromRGB(18,20,28)
 	frame.BackgroundTransparency = 0.15
 	frame.BorderSizePixel = 0
-	frame.Visible = false
 	frame.ZIndex = 50
 	Instance.new("UICorner", frame).CornerRadius = UDim.new(0,16)
 
@@ -124,14 +123,14 @@ local NCard, N = makeBtn("Rotater", WIDE_W, SIZE)
 local function setPositions()
 	if isPhone then
 		local cx = screen.X - WIDE_W - 12
-		local cy = screen.Y * 0.55
+		local cy = (screen.Y * 0.55) - 80
 		XCard.Position = UDim2.fromOffset(cx, cy - SIZE - GAP)
 		ZCard.Position = UDim2.fromOffset(cx, cy)
 		CCard.Position = UDim2.fromOffset(cx + SIZE + GAP, cy)
 		NCard.Position = UDim2.fromOffset(cx, cy + SIZE + GAP)
 	else
 		local bx = screen.X - 360
-		local by = screen.Y - 260
+		local by = screen.Y - 360
 		XCard.Position = UDim2.fromOffset(bx, by - SIZE - GAP)
 		ZCard.Position = UDim2.fromOffset(bx, by)
 		CCard.Position = UDim2.fromOffset(bx + SIZE + GAP, by)
@@ -148,96 +147,35 @@ X.MouseButton1Click:Connect(function() pressKey(Enum.KeyCode.X); releaseKey(Enum
 N.MouseButton1Click:Connect(function() pressKey(Enum.KeyCode.N); releaseKey(Enum.KeyCode.N) end)
 
 --------------------------------------------------
--- Menu (+ / -) + Toggles (guaranteed)
+-- Floating Discord text above character (fixed size)
 --------------------------------------------------
-local menu = Instance.new("Frame", gui)
-menu.Size = UDim2.fromScale(1,1)
-menu.BackgroundColor3 = Color3.fromRGB(0,0,0)
-menu.BackgroundTransparency = 0.35
-menu.Visible = false
-menu.ZIndex = 10
+local function attachBillboardText(char)
+	local head = char:WaitForChild("Head", 10)
+	if not head then return end
+	if head:FindFirstChild("VxDiscordTag") then head.VxDiscordTag:Destroy() end
 
-local panel = Instance.new("Frame", menu)
-panel.Size = UDim2.fromOffset(340, 360)
-panel.Position = UDim2.fromScale(0.5,0.5)
-panel.AnchorPoint = Vector2.new(0.5,0.5)
-panel.BackgroundColor3 = Color3.fromRGB(20,22,30)
-panel.BorderSizePixel = 0
-panel.ZIndex = 11
-Instance.new("UICorner", panel).CornerRadius = UDim.new(0, 16)
+	local bb = Instance.new("BillboardGui")
+	bb.Name = "VxDiscordTag"
+	bb.Adornee = head
+	bb.AlwaysOnTop = true
+	bb.LightInfluence = 0
+	bb.StudsOffset = Vector3.new(0, 3, 0)
+	bb.MaxDistance = 1e6
+	bb.Size = UDim2.fromOffset(320, 40)
+	bb.SizeConstraint = Enum.SizeConstraint.RelativeXY
+	bb.Parent = head
 
-local title = Instance.new("TextLabel", panel)
-title.Size = UDim2.fromOffset(260, 30)
-title.Position = UDim2.fromOffset(16, 8)
-title.BackgroundTransparency = 1
-title.Text = "Ocean Hub Mobile Helper"
-title.Font = Enum.Font.GothamBold
-title.TextSize = 16
-title.TextColor3 = Color3.new(1,1,1)
-title.ZIndex = 12
-
-local credit = Instance.new("TextLabel", panel)
-credit.Size = UDim2.fromOffset(260, 18)
-credit.Position = UDim2.fromOffset(16, 36)
-credit.BackgroundTransparency = 1
-credit.Text = "H2o · v1.7"
-credit.Font = Enum.Font.Gotham
-credit.TextSize = 12
-credit.TextColor3 = Color3.fromRGB(160,170,190)
-credit.ZIndex = 12
-
-local function toggleRow(name, y, card)
-	local row = Instance.new("Frame", panel)
-	row.Size = UDim2.fromOffset(300, 36)
-	row.Position = UDim2.fromOffset(20, y)
-	row.BackgroundTransparency = 1
-	row.ZIndex = 12
-
-	local label = Instance.new("TextLabel", row)
-	label.Size = UDim2.fromScale(0.6,1)
+	local label = Instance.new("TextLabel", bb)
+	label.Size = UDim2.fromScale(1, 1)
 	label.BackgroundTransparency = 1
-	label.Text = name
-	label.Font = Enum.Font.Gotham
-	label.TextSize = 14
-	label.TextColor3 = Color3.fromRGB(220,220,220)
-	label.ZIndex = 12
-
-	local btn = Instance.new("TextButton", row)
-	btn.Size = UDim2.fromOffset(64, 26)
-	btn.Position = UDim2.fromScale(1,0.5)
-	btn.AnchorPoint = Vector2.new(1,0.5)
-	btn.Text = "OFF"
-	btn.Font = Enum.Font.GothamBold
-	btn.TextSize = 12
-	btn.BackgroundColor3 = Color3.fromRGB(40,40,55)
-	btn.TextColor3 = Color3.fromRGB(255,120,120)
-	btn.ZIndex = 12
-	Instance.new("UICorner", btn).CornerRadius = UDim.new(0,12)
-
-	btn.MouseButton1Click:Connect(function()
-		local on = not card.Visible
-		card.Visible = on
-		btn.Text = on and "ON" or "OFF"
-		btn.TextColor3 = on and Color3.fromRGB(120,255,140) or Color3.fromRGB(255,120,120)
-	end)
+	label.Text = "https://discord.gg/qUGMR2FpHZ"
+	label.Font = Enum.Font.GothamBold
+	label.TextSize = 16
+	label.TextWrapped = true
+	label.TextScaled = false
+	label.TextColor3 = Color3.fromRGB(160, 200, 255)
+	label.TextStrokeTransparency = 0.4
 end
 
-toggleRow("Left Base (Z)", 70, ZCard)
-toggleRow("Right Base (C)", 110, CCard)
-toggleRow("Bat Aimbot (X)", 150, XCard)
-toggleRow("Rotater (N)", 190, NCard)
-
-local reopen = Instance.new("TextButton", gui)
-reopen.Size = UDim2.fromOffset(32, 32)
-reopen.Position = UDim2.fromOffset(12, screen.Y - 44)
-reopen.Text = "+"
-reopen.Font = Enum.Font.GothamBlack
-reopen.TextSize = 18
-reopen.BackgroundColor3 = Color3.fromRGB(40,40,55)
-reopen.TextColor3 = Color3.fromRGB(200,200,200)
-reopen.ZIndex = 60
-Instance.new("UICorner", reopen).CornerRadius = UDim.new(0,10)
-
-reopen.MouseButton1Click:Connect(function()
-	menu.Visible = not menu.Visible
-end)
+if player.Character then attachBillboardText(player.Character) end
+player.CharacterAdded:Connect(attachBillboardText)
