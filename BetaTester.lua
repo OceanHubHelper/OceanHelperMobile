@@ -137,7 +137,7 @@ menu.BackgroundTransparency = 0.35
 menu.Visible = false
 
 local panel = Instance.new("Frame", menu)
-panel.Size = UDim2.fromOffset(340, 340)
+panel.Size = UDim2.fromOffset(340, 360)
 panel.Position = UDim2.fromScale(0.5,0.5)
 panel.AnchorPoint = Vector2.new(0.5,0.5)
 panel.BackgroundColor3 = Color3.fromRGB(20,22,30)
@@ -145,14 +145,24 @@ panel.BorderSizePixel = 0
 Instance.new("UICorner", panel).CornerRadius = UDim.new(0, 16)
 
 local title = Instance.new("TextLabel", panel)
-title.Size = UDim2.fromOffset(260, 36)
-title.Position = UDim2.fromOffset(16, 10)
+title.Size = UDim2.fromOffset(260, 30)
+title.Position = UDim2.fromOffset(16, 8)
 title.BackgroundTransparency = 1
 title.Text = "Ocean Hub Mobile Helper"
 title.Font = Enum.Font.GothamBold
 title.TextSize = 16
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.TextColor3 = Color3.new(1,1,1)
+
+local credit = Instance.new("TextLabel", panel)
+credit.Size = UDim2.fromOffset(260, 18)
+credit.Position = UDim2.fromOffset(16, 36)
+credit.BackgroundTransparency = 1
+credit.Text = "H2o"
+credit.Font = Enum.Font.Gotham
+credit.TextSize = 12
+credit.TextXAlignment = Enum.TextXAlignment.Left
+credit.TextColor3 = Color3.fromRGB(160, 170, 190)
 
 local minimize = Instance.new("TextButton", panel)
 minimize.Size = UDim2.fromOffset(28, 28)
@@ -177,13 +187,7 @@ Instance.new("UICorner", reopen).CornerRadius = UDim.new(0, 10)
 reopen.MouseButton1Click:Connect(function() menu.Visible = true end)
 
 -- ===== State + Toggles =====
-local state = {
-	Z = false,
-	C = false,
-	X = false,
-	N = false,
-	FPS = false,
-}
+local state = { Z=false, C=false, X=false, N=false, FPS=false }
 
 local function makeToggle(name, y, key)
 	local row = Instance.new("Frame", panel)
@@ -216,12 +220,11 @@ local function makeToggle(name, y, key)
 		btn.Text = state[key] and "ON" or "OFF"
 		btn.TextColor3 = state[key] and Color3.fromRGB(120,255,140) or Color3.fromRGB(255,120,120)
 		btn.BackgroundColor3 = state[key] and Color3.fromRGB(35,60,45) or Color3.fromRGB(40,40,55)
-
-		if key == "Z" then ZCard.Visible = state[key] end
-		if key == "C" then CCard.Visible = state[key] end
-		if key == "X" then XCard.Visible = state[key] end
-		if key == "N" then NCard.Visible = state[key] end
-		if key == "FPS" then fpsLabel.Visible = state[key] end
+		if key=="Z" then ZCard.Visible = state[key] end
+		if key=="C" then CCard.Visible = state[key] end
+		if key=="X" then XCard.Visible = state[key] end
+		if key=="N" then NCard.Visible = state[key] end
+		if key=="FPS" then fpsLabel.Visible = state[key] end
 	end)
 end
 
@@ -230,19 +233,3 @@ makeToggle("Right Base Button", 104, "C")
 makeToggle("Bat Aimbot Button", 144, "X")
 makeToggle("Rotater Button", 184, "N")
 makeToggle("FPS Counter", 224, "FPS")
-
--- ===== Save Button =====
-local saveBtn = Instance.new("TextButton", panel)
-saveBtn.Size = UDim2.fromOffset(96, 28)
-saveBtn.Position = UDim2.fromScale(1,1) - UDim2.fromOffset(16, 16)
-saveBtn.AnchorPoint = Vector2.new(1,1)
-saveBtn.Text = "Save"
-saveBtn.Font = Enum.Font.GothamBold
-saveBtn.TextSize = 12
-saveBtn.BackgroundColor3 = Color3.fromRGB(60, 120, 90)
-saveBtn.TextColor3 = Color3.new(1,1,1)
-Instance.new("UICorner", saveBtn).CornerRadius = UDim.new(0, 12)
-
-saveBtn.MouseButton1Click:Connect(function()
-	print("Saved config:", state)
-end)
