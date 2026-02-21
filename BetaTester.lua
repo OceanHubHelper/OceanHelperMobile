@@ -21,60 +21,33 @@ intro.Size = UDim2.fromScale(1,1)
 intro.BackgroundColor3 = Color3.fromRGB(0,0,0)
 intro.BackgroundTransparency = 1
 
-local vx = Instance.new("TextLabel", intro)
-vx.Size = UDim2.fromScale(1,0.2)
-vx.Position = UDim2.fromScale(0.5,0.45)
-vx.AnchorPoint = Vector2.new(0.5,0.5)
-vx.BackgroundTransparency = 1
-vx.Text = "Vx"
-vx.Font = Enum.Font.GothamBlack
-vx.TextSize = 48
-vx.TextTransparency = 1
-vx.TextColor3 = Color3.new(1,1,1)
+local function introLabel(text, y, size, color)
+	local t = Instance.new("TextLabel", intro)
+	t.Size = UDim2.fromScale(1,0.12)
+	t.Position = UDim2.fromScale(0.5,y)
+	t.AnchorPoint = Vector2.new(0.5,0.5)
+	t.BackgroundTransparency = 1
+	t.Text = text
+	t.Font = Enum.Font.GothamBlack
+	t.TextSize = size
+	t.TextTransparency = 1
+	t.TextColor3 = color
+	return t
+end
 
-local h2o = Instance.new("TextLabel", intro)
-h2o.Size = UDim2.fromScale(1,0.1)
-h2o.Position = UDim2.fromScale(0.5,0.53)
-h2o.AnchorPoint = Vector2.new(0.5,0.5)
-h2o.BackgroundTransparency = 1
-h2o.Text = "H2o"
-h2o.Font = Enum.Font.Gotham
-h2o.TextSize = 20
-h2o.TextTransparency = 1
-h2o.TextColor3 = Color3.fromRGB(160,180,255)
+local vx = introLabel("Vx", 0.44, 48, Color3.new(1,1,1))
+local h2o = introLabel("H2o", 0.52, 20, Color3.fromRGB(160,180,255))
+local ver = introLabel("v1.7", 0.59, 14, Color3.fromRGB(180,180,200))
+local lagOn = introLabel("Anti-Lag: ON", 0.66, 14, Color3.fromRGB(120,255,140))
 
-local version = Instance.new("TextLabel", intro)
-version.Size = UDim2.fromScale(1,0.08)
-version.Position = UDim2.fromScale(0.5,0.61)
-version.AnchorPoint = Vector2.new(0.5,0.5)
-version.BackgroundTransparency = 1
-version.Text = "v1.7"
-version.Font = Enum.Font.GothamBold
-version.TextSize = 14
-version.TextTransparency = 1
-version.TextColor3 = Color3.fromRGB(180,180,200)
-
-local lagOn = Instance.new("TextLabel", intro)
-lagOn.Size = UDim2.fromScale(1,0.08)
-lagOn.Position = UDim2.fromScale(0.5,0.68)
-lagOn.AnchorPoint = Vector2.new(0.5,0.5)
-lagOn.BackgroundTransparency = 1
-lagOn.Text = "Anti-Lag: ON"
-lagOn.Font = Enum.Font.GothamBold
-lagOn.TextSize = 14
-lagOn.TextTransparency = 1
-lagOn.TextColor3 = Color3.fromRGB(120,255,140)
-
-TweenService:Create(vx, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
-TweenService:Create(h2o, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
-TweenService:Create(version, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
-TweenService:Create(lagOn, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
+for _,l in ipairs({vx,h2o,ver,lagOn}) do
+	TweenService:Create(l, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
+end
 
 task.delay(1.3, function()
-	TweenService:Create(vx, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-	TweenService:Create(h2o, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-	TweenService:Create(version, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-	TweenService:Create(lagOn, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
+	for _,l in ipairs({vx,h2o,ver,lagOn}) do
+		TweenService:Create(l, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
+	end
 	task.delay(0.5, function() intro:Destroy() end)
 end)
 
@@ -88,7 +61,6 @@ pcall(function()
 		if v:IsA("PostEffect") then v.Enabled = false end
 	end
 end)
-
 for _,d in ipairs(workspace:GetDescendants()) do
 	if d:IsA("ParticleEmitter") or d:IsA("Beam") or d:IsA("Trail") then
 		d.Enabled = false
@@ -181,7 +153,7 @@ X.MouseButton1Click:Connect(function() pressKey(Enum.KeyCode.X); releaseKey(Enum
 N.MouseButton1Click:Connect(function() pressKey(Enum.KeyCode.N); releaseKey(Enum.KeyCode.N) end)
 
 --------------------------------------------------
--- Menu (+ / -)
+-- Menu (+ / -) + Toggles
 --------------------------------------------------
 local menu = Instance.new("Frame", gui)
 menu.Size = UDim2.fromScale(1,1)
@@ -190,7 +162,7 @@ menu.BackgroundTransparency = 0.35
 menu.Visible = false
 
 local panel = Instance.new("Frame", menu)
-panel.Size = UDim2.fromOffset(340, 340)
+panel.Size = UDim2.fromOffset(340, 360)
 panel.Position = UDim2.fromScale(0.5,0.5)
 panel.AnchorPoint = Vector2.new(0.5,0.5)
 panel.BackgroundColor3 = Color3.fromRGB(20,22,30)
@@ -239,4 +211,41 @@ reopen.TextColor3 = Color3.fromRGB(200,200,200)
 Instance.new("UICorner", reopen).CornerRadius = UDim.new(0, 10)
 reopen.MouseButton1Click:Connect(function() menu.Visible = true end)
 
--- Toggles omitted for brevity (same as your last working version)
+local function makeToggle(name, y, card)
+	local row = Instance.new("Frame", panel)
+	row.Size = UDim2.fromOffset(300, 36)
+	row.Position = UDim2.fromOffset(20, y)
+	row.BackgroundTransparency = 1
+
+	local label = Instance.new("TextLabel", row)
+	label.Size = UDim2.fromScale(0.6,1)
+	label.BackgroundTransparency = 1
+	label.Text = name
+	label.Font = Enum.Font.Gotham
+	label.TextSize = 14
+	label.TextXAlignment = Enum.TextXAlignment.Left
+	label.TextColor3 = Color3.fromRGB(220,220,220)
+
+	local btn = Instance.new("TextButton", row)
+	btn.Size = UDim2.fromOffset(64, 26)
+	btn.Position = UDim2.fromScale(1,0.5)
+	btn.AnchorPoint = Vector2.new(1,0.5)
+	btn.Text = "OFF"
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 12
+	btn.BackgroundColor3 = Color3.fromRGB(40,40,55)
+	btn.TextColor3 = Color3.fromRGB(255,120,120)
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 12)
+
+	btn.MouseButton1Click:Connect(function()
+		local on = not card.Visible
+		card.Visible = on
+		btn.Text = on and "ON" or "OFF"
+		btn.TextColor3 = on and Color3.fromRGB(120,255,140) or Color3.fromRGB(255,120,120)
+	end)
+end
+
+makeToggle("Left Base Button", 64, ZCard)
+makeToggle("Right Base Button", 104, CCard)
+makeToggle("Bat Aimbot Button", 144, XCard)
+makeToggle("Rotater Button", 184, NCard)
