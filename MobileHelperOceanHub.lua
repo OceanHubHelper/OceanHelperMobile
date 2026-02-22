@@ -46,6 +46,7 @@ local lagOn = introLabel("Anti-Lag: ON", 0.66, 14, Color3.fromRGB(120,255,140))
 for _,l in ipairs({vx,h2o,ver,lagOn}) do
 	TweenService:Create(l, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
 end
+
 task.delay(1.3, function()
 	for _,l in ipairs({vx,h2o,ver,lagOn}) do
 		TweenService:Create(l, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
@@ -54,7 +55,7 @@ task.delay(1.3, function()
 end)
 
 --------------------------------------------------
--- Anti-Lag / Potato Mode (client-side)
+-- Anti-Lag (Safe)
 --------------------------------------------------
 pcall(function()
 	Lighting.GlobalShadows = false
@@ -63,16 +64,9 @@ pcall(function()
 		if v:IsA("PostEffect") then v.Enabled = false end
 	end
 end)
-
 for _,d in ipairs(workspace:GetDescendants()) do
 	if d:IsA("ParticleEmitter") or d:IsA("Beam") or d:IsA("Trail") then
 		d.Enabled = false
-	elseif d:IsA("BasePart") then
-		d.CastShadow = false
-		d.Reflectance = 0
-		d.Material = Enum.Material.Plastic
-	elseif d:IsA("Decal") or d:IsA("Texture") then
-		d.Transparency = 1
 	end
 end
 
@@ -129,7 +123,7 @@ local NCard, N = makeBtn("Rotater", WIDE_W, SIZE)
 local function setPositions()
 	if isPhone then
 		local cx = screen.X - WIDE_W - 12
-		local cy = (screen.Y * 0.55) - 110 -- higher on phone
+		local cy = (screen.Y * 0.55) - 80
 		XCard.Position = UDim2.fromOffset(cx, cy - SIZE - GAP)
 		ZCard.Position = UDim2.fromOffset(cx, cy)
 		CCard.Position = UDim2.fromOffset(cx + SIZE + GAP, cy)
@@ -153,34 +147,7 @@ X.MouseButton1Click:Connect(function() pressKey(Enum.KeyCode.X); releaseKey(Enum
 N.MouseButton1Click:Connect(function() pressKey(Enum.KeyCode.N); releaseKey(Enum.KeyCode.N) end)
 
 --------------------------------------------------
--- FPS Counter (toggleable)
---------------------------------------------------
-local fpsLabel = Instance.new("TextLabel", gui)
-fpsLabel.Size = UDim2.fromOffset(80, 28)
-fpsLabel.Position = UDim2.fromOffset(screen.X - 92, 10)
-fpsLabel.BackgroundTransparency = 0.25
-fpsLabel.BackgroundColor3 = Color3.fromRGB(20,20,28)
-fpsLabel.TextColor3 = Color3.fromRGB(180,220,255)
-fpsLabel.Font = Enum.Font.GothamBold
-fpsLabel.TextSize = 12
-fpsLabel.Text = "FPS: --"
-fpsLabel.Visible = true
-Instance.new("UICorner", fpsLabel).CornerRadius = UDim.new(0,10)
-
-local frames, last = 0, tick()
-RunService.RenderStepped:Connect(function()
-	frames += 1
-	if tick() - last >= 1 then
-		local fps = frames
-		frames = 0
-		last = tick()
-		fpsLabel.Text = "FPS: "..fps
-		fpsLabel.TextColor3 = (fps < 10) and Color3.fromRGB(255,90,90) or Color3.fromRGB(180,220,255)
-	end
-end)
-
---------------------------------------------------
--- Floating Discord text (fixed size, always faces camera)
+-- Floating Discord text above character (fixed size)
 --------------------------------------------------
 local function attachBillboardText(char)
 	local head = char:WaitForChild("Head", 10)
